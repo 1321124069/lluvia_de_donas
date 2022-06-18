@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego recoje</title>
+</head>
+<!--fondo del juego-->
+<body style="background-image: url('https://i.blogs.es/7997eb/los-simpsons-wes-anderson/840_560.jpeg'); background-size: cover; background-repeat: no-repeat;">          
+
+        <!--gif de homero caminando-->        
+            <img id="recoje" src="imagenes/homero.gif" style="top: 19%; left: 0; width: 15%; height: 15%; position: fixed; z-index: 5; margin-top: 30%;">
+            <audio id="aud" src="musica/intro.mp3"  autoplay; loop="-1"></audio>
+    </div>
+   
+</body>
+
+
+<script>
+
+
+aud.play();
+//declaracion de variables
+    var tecla = "";    
+    var teclaPulsada = false; 
+    var anchoPantalla= window.innerWidth;
+    var alturaPantalla = window.innerHeight;
+    var puntaje = 0;
+    var objetivoGanar = 10;
+    var recoje = document.getElementById("recoje");
+    var posX = 0;
+    var posY = 0;
+    var velocidad = 80;
+    var velocidadDona = 20;
+    var posicion = "derecha";
+    var intervalo;
+  
+
+
+    generaDonas();
+
+
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        musica();
+    });
+    function musica(){
+        document.getElementById("aud").play();
+    }
+    //verifica si las teclas oprimidas son las correctas para que homero se mueva
+    document.onkeydown = function(tlc) {        
+        tecla = tlc.keyCode;
+        teclaPulsada = true;
+        // -- si es flecha derecha
+        if (tecla == 39) {
+            // -- mover personaje a la derecha
+            recoje.style.transform = "scaleX(1)";
+            posicion = "derecha";
+            // --- Flecha Izquierda
+        }else if (tecla == 37) {
+            // -- voltear personaje
+            recoje.style.transform = "scaleX(-1)";
+            posicion = "izquierda";
+        }else{
+            return false;
+        }
+        moverOmero();
+    }
+
+    //cae la dona en un numero aleatorio de la pantalla 
+    function caeDona() {
+        var posX = Math.floor(Math.random() * (anchoPantalla - 5));
+        var dona = document.createElement("img");
+        dona.src = "imagenes/dona.png";
+        dona.style.position = "absolute";
+        dona.style.borderRadius = "55%";
+        dona.style.width = "80px";
+        dona.style.height = "80px";
+        dona.style.left = posX + "px";
+        document.body.appendChild(dona);
+        moverDona(dona);
+    }
+
+      /*-cae la dona en un numero aleatorio de la pantalla 
+      function caeZanahoria() {
+        var posX = Math.floor(Math.random() * (anchoPantalla - 5));
+        var zanahoria = document.createElement("img");
+        zanahoria.src = "imagenes/cerveza.png";
+        zanahoria.style.position = "absolute";
+        zanahoria.style.width = "80px";
+        zanahoria.style.height = "80px";
+        zanahoria.style.left = posX + "px";
+        document.body.appendChild(zanahoria);
+        moverZana(zanahoria);
+    }*/
+
+    //da movimiento a homero
+    function moverOmero() {
+
+        if (posicion == "derecha") {
+            posX += velocidad;
+        } else {
+            posX -= velocidad;
+        }
+        recoje.style.left = posX + "px";
+        limitePantalla();
+    }
+
+    //checa los limites de la pantalla para no salirse
+    function limitePantalla() {
+        if (posX > window.innerWidth - recoje.width) {
+            posX = window.innerWidth - recoje.width;
+        } else if (posX < 0) {
+            posX = 0;
+        }
+    }
+
+
+    //hace la lluvia de donas
+    function generaDonas() {
+        
+        intervalo = setInterval(function() {
+            objetivoGanar--;
+            if(objetivoGanar >= 0){
+                caeDona();
+                
+            }else{
+                clearInterval(intervalo);
+            }
+        }, 1000);        
+              
+    }
+    /*
+    function generaZana() {
+        
+        interval = setInterval(function() {
+            objetivoPerder--;
+            if(objetivoPerder <= 3){
+                
+                caeZanahoria();
+            }else{
+                clearInterval(interval);
+            }
+        }, 1000);        
+              
+    }*/
+
+
+    function moverDona(dona) {        
+        var posY = 0;        
+        var posicion = "derecha";
+        var intervalo;
+        var tecla = "";    
+        var teclaPulsada = false; 
+        var limite = window.innerHeight - dona.height;                
+        intervalo = setInterval(function() {
+            posY += velocidadDona;
+            dona.style.top = posY + "px";
+            if (posY > limite) {
+                posY = 0;
+                dona.style.top = posY + "px";
+            } 
+            
+            //inicio de ferificacion si la dona toco a homero
+            if (dona.offsetTop + dona.height > recoje.offsetTop && dona.offsetTop < recoje.offsetTop + dona.height && dona.offsetLeft + recoje.width > recoje.offsetLeft && dona.offsetLeft < recoje.offsetLeft + recoje.width) {
+                document.body.removeChild(dona);
+                puntaje++;
+                if(puntaje == 10){                                
+                    alert("has ganado ");                      
+                    clearInterval(intervalo);    
+                    alert("hagarraste " + puntaje);
+                    alert("gracias por jugar");             
+                    //si lo toca y se juntan 20 tocadas gana    
+                }else{//de lo contrario siguen cayendo donas
+                    generaDonas();
+                    clearInterval(intervalo);
+                }            
+            }
+        }, 90);                
+    }
+/*
+    function moverZana(zanahoria){
+        var posY = 0;        
+        var posicion = "derecha";
+        var interval;
+        var tecla = "";    
+        var teclaPulsada = false; 
+        var limite = window.innerHeight - zanahoria.height;                
+        intervalo = setInterval(function() {
+            posY += velocidadZana;
+            zanahoria.style.top = posY + "px";
+            if (posY > limite) {
+                posY = 0;
+                zanahoria.style.top = posY + "px";
+            } 
+            
+            //inicio de ferificacion si la dona toco a homero
+            if (zanahoria.offsetTop + zanahoria.height > recoje.offsetTop && zanahoria.offsetTop < recoje.offsetTop + zanahoria.height && zanahoria.offsetLeft + recoje.width > recoje.offsetLeft && zanahoria.offsetLeft < recoje.offsetLeft + recoje.width) {
+                document.body.removeChild(zanahoria);
+                puntajeZanahoria++;
+                if(puntajeZanahoria == 3){                                
+                    alert("has PERDIDO ");                      
+                    clearInterval(intervalo);    
+                    alert("gracias por jugar");             
+                    //si lo toca y se juntan 20 tocadas gana    
+                }else{//de lo contrario siguen cayendo donas
+                    generaZana();
+                    clearInterval(interval);
+                    
+                }            
+            }
+        }, 90);                
+
+    }*/
+
+   
+       
+
+
+</script>
+</html>
